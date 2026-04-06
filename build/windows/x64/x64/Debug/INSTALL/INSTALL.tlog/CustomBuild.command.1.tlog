@@ -1,0 +1,10 @@
+^C:\USERS\RAYMU\ONEDRIVE\DESKTOP\DESKTOP FOLDER\SYSTEMS PROJECT\PAUTANG\BUILD\WINDOWS\X64\CMAKEFILES\CB547586F52D201D71CB2418F8BE59DE\INSTALL_FORCE.RULE
+setlocal
+cd .
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
