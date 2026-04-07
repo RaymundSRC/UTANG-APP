@@ -2,11 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'pages/dashboard/dashboard_page.dart';
 import 'pages/members/members_page.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 // import 'pages/loans/loans_page.dart';
 // import 'pages/transactions/transactions_page.dart';
 // import 'pages/reports/reports_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+    url:
+        'https://qzvknysszgpeykudxohs.supabase.co', // from Supabase API settings
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF6dmtueXNzemdwZXlrdWR4b2hzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NDkwMzcsImV4cCI6MjA5MTAyNTAzN30.YBPmzOkk3Y0n1S6GEUqBklC_JpaB91P5hEmnPZg2Abo', // from Supabase API settings
+  );
+
   runApp(const PautangApp());
 }
 

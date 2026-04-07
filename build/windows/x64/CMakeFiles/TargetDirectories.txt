@@ -8,3 +8,9 @@ C:/Users/raymu/OneDrive/Desktop/DESKTOP FOLDER/SYSTEMS PROJECT/PAUTANG/build/win
 C:/Users/raymu/OneDrive/Desktop/DESKTOP FOLDER/SYSTEMS PROJECT/PAUTANG/build/windows/x64/runner/CMakeFiles/pautang_temp.dir
 C:/Users/raymu/OneDrive/Desktop/DESKTOP FOLDER/SYSTEMS PROJECT/PAUTANG/build/windows/x64/runner/CMakeFiles/INSTALL.dir
 C:/Users/raymu/OneDrive/Desktop/DESKTOP FOLDER/SYSTEMS PROJECT/PAUTANG/build/windows/x64/runner/CMakeFiles/ALL_BUILD.dir
+C:/Users/raymu/OneDrive/Desktop/DESKTOP FOLDER/SYSTEMS PROJECT/PAUTANG/build/windows/x64/plugins/app_links/CMakeFiles/app_links_plugin.dir
+C:/Users/raymu/OneDrive/Desktop/DESKTOP FOLDER/SYSTEMS PROJECT/PAUTANG/build/windows/x64/plugins/app_links/CMakeFiles/INSTALL.dir
+C:/Users/raymu/OneDrive/Desktop/DESKTOP FOLDER/SYSTEMS PROJECT/PAUTANG/build/windows/x64/plugins/app_links/CMakeFiles/ALL_BUILD.dir
+C:/Users/raymu/OneDrive/Desktop/DESKTOP FOLDER/SYSTEMS PROJECT/PAUTANG/build/windows/x64/plugins/url_launcher_windows/CMakeFiles/url_launcher_windows_plugin.dir
+C:/Users/raymu/OneDrive/Desktop/DESKTOP FOLDER/SYSTEMS PROJECT/PAUTANG/build/windows/x64/plugins/url_launcher_windows/CMakeFiles/INSTALL.dir
+C:/Users/raymu/OneDrive/Desktop/DESKTOP FOLDER/SYSTEMS PROJECT/PAUTANG/build/windows/x64/plugins/url_launcher_windows/CMakeFiles/ALL_BUILD.dir

@@ -17,6 +17,7 @@ dependencies:
   intl: ^0.17.0
   sqflite: ^2.3.0
   path: ^1.8.3
+  supabase_flutter: ^2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -25,10 +26,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
-platforms:
-  windows:
-    enable: true
-
-assets:
+  assets:
     - assets/images/

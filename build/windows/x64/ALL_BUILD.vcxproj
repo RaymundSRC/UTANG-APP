@@ -137,6 +137,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
+    <ProjectReference Include="C:\Users\raymu\OneDrive\Desktop\DESKTOP FOLDER\SYSTEMS PROJECT\PAUTANG\build\windows\x64\plugins\app_links\app_links_plugin.vcxproj">
+      <Project>{409EC0F8-2269-3ECC-A57C-0E75BB86934C}</Project>
+      <Name>app_links_plugin</Name>
+    </ProjectReference>
     <ProjectReference Include="C:\Users\raymu\OneDrive\Desktop\DESKTOP FOLDER\SYSTEMS PROJECT\PAUTANG\build\windows\x64\flutter\flutter_wrapper_app.vcxproj">
       <Project>{5C23D68E-E6EB-31DD-9509-C478CE833D73}</Project>
       <Name>flutter_wrapper_app</Name>
@@ -148,6 +152,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ProjectReference Include="C:\Users\raymu\OneDrive\Desktop\DESKTOP FOLDER\SYSTEMS PROJECT\PAUTANG\build\windows\x64\runner\pautang_temp.vcxproj">
       <Project>{9FFA22D9-7F20-31D9-BDA8-E38542A4B085}</Project>
       <Name>pautang_temp</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\raymu\OneDrive\Desktop\DESKTOP FOLDER\SYSTEMS PROJECT\PAUTANG\build\windows\x64\plugins\url_launcher_windows\url_launcher_windows_plugin.vcxproj">
+      <Project>{DB342E55-C53F-30C9-B4EB-CDE3E9328DAE}</Project>
+      <Name>url_launcher_windows_plugin</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

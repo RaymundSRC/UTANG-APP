@@ -176,7 +176,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\raymu\OneDrive\Desktop\DESKTOP FOLDER\SYSTEMS PROJECT\PAUTANG\build\windows\x64\runner\ALL_BUILD.vcxproj">
+    <ProjectReference Include="C:\Users\raymu\OneDrive\Desktop\DESKTOP FOLDER\SYSTEMS PROJECT\PAUTANG\build\windows\x64\plugins\url_launcher_windows\ALL_BUILD.vcxproj">
       <Project>{35389AD5-22E4-343B-BB7B-1FDEA52191A2}</Project>
       <Name>ALL_BUILD</Name>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'member_input_fields.dart';
 
+// Dialog for adding new members
 class AddMemberDialog extends StatefulWidget {
   const AddMemberDialog({super.key});
 
@@ -28,6 +30,7 @@ class _AddMemberDialogState extends State<AddMemberDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Header
               Row(
                 children: [
                   Container(
@@ -53,7 +56,9 @@ class _AddMemberDialogState extends State<AddMemberDialog> {
                 ],
               ),
               const SizedBox(height: 24),
-              _buildTextField(
+
+              // Form fields
+              CustomTextField(
                 controller: fullNameController,
                 label: 'Full Name',
                 icon: Icons.person,
@@ -64,10 +69,10 @@ class _AddMemberDialogState extends State<AddMemberDialog> {
                   return null;
                 },
               ),
+
               const SizedBox(height: 16),
-              _buildDateField(),
-              const SizedBox(height: 16),
-              _buildTextField(
+
+              CustomTextField(
                 controller: amountController,
                 label: 'Initial Amount',
                 icon: Icons.money,
@@ -84,7 +89,8 @@ class _AddMemberDialogState extends State<AddMemberDialog> {
                 },
               ),
               const SizedBox(height: 16),
-              _buildTextField(
+
+              CustomTextField(
                 controller: targetAmountController,
                 label: 'Target Amount',
                 icon: Icons.flag,
@@ -100,7 +106,15 @@ class _AddMemberDialogState extends State<AddMemberDialog> {
                   return null;
                 },
               ),
+
+              const SizedBox(height: 16),
+
+              CustomDateField(
+                selectedDate: selectedDate,
+                onTap: _selectDate,
+              ),
               const SizedBox(height: 24),
+              // Buttons
               Row(
                 children: [
                   Expanded(
@@ -127,7 +141,7 @@ class _AddMemberDialogState extends State<AddMemberDialog> {
                             'targetAmount':
                                 double.tryParse(targetAmountController.text) ??
                                     0,
-                            'date': selectedDate,
+                            'select_date': selectedDate,
                           });
                         }
                       },
@@ -145,82 +159,6 @@ class _AddMemberDialogState extends State<AddMemberDialog> {
                 ],
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    String? prefixText,
-    TextInputType? keyboardType,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon, color: Colors.blue),
-        prefixText: prefixText,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Colors.blue),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Colors.red),
-        ),
-        filled: true,
-        fillColor: Colors.grey.shade50,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      ),
-      keyboardType: keyboardType,
-      validator: validator,
-    );
-  }
-
-  Widget _buildDateField() {
-    return InkWell(
-      onTap: _selectDate,
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: 'Date',
-          prefixIcon: const Icon(Icons.calendar_today, color: Colors.blue),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(color: Colors.grey.shade300),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(color: Colors.grey.shade300),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Colors.blue),
-          ),
-          filled: true,
-          fillColor: Colors.grey.shade50,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        ),
-        child: Text(
-          selectedDate != null
-              ? '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}'
-              : 'Select date',
-          style: TextStyle(
-            color: selectedDate != null ? Colors.black : Colors.grey.shade600,
           ),
         ),
       ),
