@@ -147,6 +147,7 @@ class _MembersPageState extends State<MembersPage> {
                         member: member,
                         index: index,
                         onDelete: _deleteMember,
+                        onEdit: _fetchMembers,
                       );
                     },
                   ),
