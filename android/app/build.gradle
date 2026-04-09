@@ -10,13 +10,28 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
+    compileSdkVersion 34   // <-- Add or update to 33
+    defaultConfig {
+        applicationId "pautang_app"
+        minSdkVersion 21    // keep or update if needed
+        targetSdkVersion 33 // match compileSdkVersion
+        versionCode 1
+        versionName "1.0"
+    }
+     buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false   //Disable resource shrinking (simplest for debug builds)
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
+        jvmTarget = JavaVersion.VERSION_17
     }
 
     defaultConfig {

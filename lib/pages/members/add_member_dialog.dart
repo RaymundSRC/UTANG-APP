@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'member_input_fields.dart';
+import 'members_profile.dart';
 
 // Dialog for adding new members
 class AddMemberDialog extends StatefulWidget {
@@ -113,7 +114,8 @@ class _AddMemberDialogState extends State<AddMemberDialog> {
                 selectedDate: selectedDate,
                 onTap: _selectDate,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
+
               // Buttons
               Row(
                 children: [

@@ -1,44 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'add_member_dialog.dart';
-
-class Member {
-  final String? id;
-  final String fullName;
-  final double initialAmount;
-  final double targetAmount;
-  final DateTime? date;
-
-  Member({
-    this.id,
-    required this.fullName,
-    required this.initialAmount,
-    required this.targetAmount,
-    this.date,
-  });
-
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'fullname': fullName,
-      'initial_amount': initialAmount,
-      'target_amount': targetAmount,
-      'select_date': date?.toIso8601String(),
-    };
-  }
-
-  factory Member.fromMap(Map<String, dynamic> map) {
-    return Member(
-      id: map['id']?.toString(),
-      fullName: map['fullname'] ?? '',
-      initialAmount: (map['initial_amount'] as num?)?.toDouble() ?? 0.0,
-      targetAmount: (map['target_amount'] as num?)?.toDouble() ?? 0.0,
-      date: map['select_date'] != null
-          ? DateTime.parse(map['select_date'])
-          : null,
-    );
-  }
-}
+import 'members_profile.dart';
 
 class MembersPage extends StatefulWidget {
   const MembersPage({super.key});
@@ -122,87 +85,71 @@ class _MembersPageState extends State<MembersPage> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _members.isEmpty
-              ? const Center(
-                  child: Text('No members yet'),
-                )
-              : ListView.builder(
-                  itemCount: _members.length,
-                  itemBuilder: (context, index) {
-                    final member = _members[index];
-                    return Card(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.blue.shade100,
-                          child: Text(
-                            member.fullName.isNotEmpty
-                                ? member.fullName[0].toUpperCase()
-                                : 'M',
-                            style: TextStyle(
-                              color: Colors.blue.shade800,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          shape: BoxShape.circle,
                         ),
-                        title: Text(
-                          member.fullName,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (member.date != null) ...[
-                              const SizedBox(height: 4),
-                              Text(
-                                'select_Date: ${member.date!.day}/${member.date!.month}/${member.date!.year}',
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                            const SizedBox(height: 4),
-                            Text(
-                              'Initial Amount: ₱${member.initialAmount.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                color: Colors.green,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            Text(
-                              'Target: ₱${member.targetAmount.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                color: Colors.orange,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                        trailing: PopupMenuButton<String>(
-                          icon: const Icon(Icons.more_vert),
-                          onSelected: (value) {
-                            if (value == 'delete') {
-                              _deleteMember(member.id!, index);
-                            }
-                          },
-                          itemBuilder: (context) => [
-                            const PopupMenuItem(
-                              value: 'delete',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.delete,
-                                      color: Colors.red, size: 20),
-                                  SizedBox(width: 8),
-                                  Text('Delete Member'),
-                                ],
-                              ),
-                            ),
-                          ],
+                        child: Icon(
+                          Icons.people_outline,
+                          size: 64,
+                          color: Colors.blue.shade300,
                         ),
                       ),
-                    );
-                  },
+                      const SizedBox(height: 24),
+                      Text(
+                        'No members yet',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Add your first member to get started',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton.icon(
+                        onPressed: _showAddMemberDialog,
+                        icon: const Icon(Icons.person_add),
+                        label: const Text('Add First Member'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : RefreshIndicator(
+                  onRefresh: _fetchMembers,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    itemCount: _members.length,
+                    itemBuilder: (context, index) {
+                      final member = _members[index];
+                      return MemberCard(
+                        member: member,
+                        index: index,
+                        onDelete: _deleteMember,
+                      );
+                    },
+                  ),
                 ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
