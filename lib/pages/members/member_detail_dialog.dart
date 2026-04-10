@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'members_profile.dart';
 import 'edit_member_dialog.dart';
+import 'member_payment_form.dart';
+import 'payment_history_dialog.dart';
 
 class MemberDetailDialog extends StatefulWidget {
   final Member member;
@@ -20,6 +22,8 @@ class _MemberDetailDialogState extends State<MemberDetailDialog> {
   bool _isLoading = false;
 
   // Financial data
+  double _targetAmount = 0.0;
+  double _initialDeposit = 0.0;
   double _totalContribution = 0.0;
   double _totalPenalties = 0.0;
   double _remainingBalance = 0.0;
@@ -61,6 +65,54 @@ class _MemberDetailDialogState extends State<MemberDetailDialog> {
     }
   }
 
+  Future<bool> _addPayment(Map<String, dynamic> paymentData) async {
+    try {
+      final paymentRecord = {
+        'member_id': widget.member.id,
+        'amount': paymentData['amount'],
+        'payment_type': paymentData['payment_type'],
+        'date': paymentData['date']?.toIso8601String(),
+      };
+
+      await supabase.from('member_payments').insert(paymentRecord);
+
+      // If it's a contribution, update the member's initial_amount
+      if (paymentData['payment_type'] == 'contribution') {
+        final currentMember = await supabase
+            .from('members')
+            .select()
+            .eq('id', widget.member.id!)
+            .single();
+
+        final currentInitialAmount =
+            (currentMember['initial_amount'] as num?)?.toDouble() ?? 0.0;
+        final contributionAmount = (paymentData['amount'] as num).toDouble();
+        final newInitialAmount = currentInitialAmount + contributionAmount;
+
+        await supabase.from('members').update({
+          'initial_amount': newInitialAmount,
+        }).eq('id', widget.member.id!);
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Payment added successfully')),
+        );
+      }
+
+      // Recalculate financial summary
+      await _calculateFinancialSummary();
+      return true;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error adding payment: $e')),
+        );
+      }
+      return false;
+    }
+  }
+
   Future<void> _calculateFinancialSummary() async {
     setState(() {
       _isLoading = true;
@@ -80,10 +132,32 @@ class _MemberDetailDialogState extends State<MemberDetailDialog> {
       final targetAmount =
           (memberData['target_amount'] as num?)?.toDouble() ?? 0.0;
 
+      // Fetch payment data from member_payments table
+      final payments = await supabase
+          .from('member_payments')
+          .select()
+          .eq('member_id', widget.member.id!);
+
+      // Calculate total penalties and contributions from payments
+      double totalPenalties = 0.0;
+      double totalContributions = 0.0;
+
+      for (var payment in payments) {
+        final amount = (payment['amount'] as num).toDouble();
+        final paymentType = payment['payment_type'] as String;
+
+        if (paymentType == 'penalty') {
+          totalPenalties += amount;
+        } else if (paymentType == 'contribution') {
+          totalContributions += amount;
+        }
+      }
+
       setState(() {
+        _targetAmount = targetAmount;
+        _initialDeposit = initialAmount;
         _totalContribution = initialAmount;
-        _totalPenalties =
-            0.0; // Can be calculated from penalties table if exists
+        _totalPenalties = totalPenalties;
         _remainingBalance = targetAmount - initialAmount;
         _isLoading = false;
       });
@@ -198,10 +272,24 @@ class _MemberDetailDialogState extends State<MemberDetailDialog> {
                         child: Column(
                           children: [
                             _buildFinancialRow(
-                              'Total Contribution',
-                              _totalContribution,
+                              'Target Amount',
+                              _targetAmount,
+                              Colors.blue.shade700,
+                              Icons.flag,
+                            ),
+                            const SizedBox(height: 16),
+                            _buildFinancialRow(
+                              'Initial Deposit',
+                              _initialDeposit,
                               Colors.blue.shade700,
                               Icons.account_balance_wallet,
+                            ),
+                            const SizedBox(height: 16),
+                            _buildFinancialRow(
+                              'Total Contributions',
+                              _totalContribution,
+                              Colors.green.shade700,
+                              Icons.add_circle,
                             ),
                             const SizedBox(height: 16),
                             _buildFinancialRow(
@@ -280,6 +368,68 @@ class _MemberDetailDialogState extends State<MemberDetailDialog> {
                             ),
                           ),
                         ],
+                      ),
+                      const SizedBox(height: 12),
+                      // Payment History Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => PaymentHistoryDialog(
+                                memberId: widget.member.id!,
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.history),
+                          label: const Text('View Payment History'),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      // Add Payment Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: () async {
+                            final result =
+                                await showDialog<Map<String, dynamic>>(
+                              context: context,
+                              builder: (context) => MemberPaymentForm(
+                                member: widget.member,
+                                onPaymentSaved: () {
+                                  // This callback is called after payment is saved
+                                },
+                              ),
+                            );
+
+                            if (result != null) {
+                              final success = await _addPayment(result);
+                              if (success) {
+                                // Return 'payment' to trigger refresh in parent
+                                if (mounted) {
+                                  Navigator.pop(context, 'payment');
+                                }
+                              }
+                            }
+                          },
+                          icon: const Icon(Icons.payment),
+                          label: const Text('Add Payment'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),

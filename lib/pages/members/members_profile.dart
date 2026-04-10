@@ -265,7 +265,7 @@ class MemberCard extends StatelessWidget {
       backgroundColor: Colors.transparent,
       builder: (context) => MemberDetailDialog(member: member),
     ).then((result) {
-      if (result == 'edit' && onEdit != null) {
+      if ((result == 'edit' || result == 'payment') && onEdit != null) {
         onEdit!();
       }
     });
