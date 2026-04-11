@@ -4,6 +4,7 @@ import 'members_profile.dart';
 import 'edit_member_dialog.dart';
 import 'member_payment_form.dart';
 import 'payment_history_dialog.dart';
+import 'member_penalties_service.dart';
 
 class MemberDetailDialog extends StatefulWidget {
   final Member member;
@@ -27,6 +28,7 @@ class _MemberDetailDialogState extends State<MemberDetailDialog> {
   double _totalContribution = 0.0;
   double _totalPenalties = 0.0;
   double _remainingBalance = 0.0;
+  List<PenaltyItem> _pendingPenalties = [];
 
   @override
   void initState() {
@@ -139,7 +141,7 @@ class _MemberDetailDialogState extends State<MemberDetailDialog> {
           .eq('member_id', widget.member.id!);
 
       // Calculate total penalties and contributions from payments
-      double totalPenalties = 0.0;
+      double totalPaidPenalties = 0.0;
       double totalContributions = 0.0;
 
       for (var payment in payments) {
@@ -147,25 +149,101 @@ class _MemberDetailDialogState extends State<MemberDetailDialog> {
         final paymentType = payment['payment_type'] as String;
 
         if (paymentType == 'penalty') {
-          totalPenalties += amount;
+          totalPaidPenalties += amount;
         } else if (paymentType == 'contribution') {
           totalContributions += amount;
         }
       }
 
-      setState(() {
-        _targetAmount = targetAmount;
-        _initialDeposit = initialAmount;
-        _totalContribution = initialAmount;
-        _totalPenalties = totalPenalties;
-        _remainingBalance = targetAmount - initialAmount;
-        _isLoading = false;
-      });
+      // Dynamically calculate gross penalties
+      final pendingPenalties = await MemberPenaltiesService.calculatePendingPenalties(widget.member);
+      _pendingPenalties = pendingPenalties;
+
+      double grossPenalties = pendingPenalties.fold(0.0, (sum, item) => sum + item.penaltyAmount);
+      double currentOwedPenalties = grossPenalties - totalPaidPenalties;
+      if (currentOwedPenalties < 0) currentOwedPenalties = 0;
+
+      if (mounted) {
+        setState(() {
+          _targetAmount = targetAmount;
+          _initialDeposit = initialAmount;
+          _totalContribution = initialAmount;
+          _totalPenalties = currentOwedPenalties;
+          _remainingBalance = targetAmount - initialAmount;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
+  }
+
+  void _showPenaltyPreviewDialog() {
+    double grossPenalty = _pendingPenalties.fold(0.0, (sum, item) => sum + item.penaltyAmount);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Penalty Details'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (_pendingPenalties.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Text('No penalties currently due.', style: TextStyle(fontStyle: FontStyle.italic)),
+                )
+              else ...[
+                const Text('Gross generated penalties:'),
+                const SizedBox(height: 12),
+                Flexible(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _pendingPenalties.length,
+                    itemBuilder: (context, index) {
+                      final p = _pendingPenalties[index];
+                      return ListTile(
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(p.description),
+                        trailing: Text(
+                          '₱${p.penaltyAmount.toStringAsFixed(2)}',
+                          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const Divider(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Total Gross Penalty:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text(
+                      '₱${grossPenalty.toStringAsFixed(2)}',
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red, fontSize: 16),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -423,6 +501,24 @@ class _MemberDetailDialogState extends State<MemberDetailDialog> {
                           label: const Text('Add Payment'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      // Show Penalty Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: _showPenaltyPreviewDialog,
+                          icon: const Icon(Icons.info_outline),
+                          label: const Text('Show Penalty'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red.shade600,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
