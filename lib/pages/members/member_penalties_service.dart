@@ -53,26 +53,28 @@ class MemberPenaltiesService {
         final monthIndex = i + 1; // 1 to 11
         final monthName = cycleMonths[i];
 
-        // Assessment begins on the 1st of the following month
-        final assessmentDate = DateTime(year, monthIndex + 1, 1);
+        final joinDay = joinDate.day;
+
+        // Grace period starts on the joinDay of the following month
+        final gracePeriodStart = DateTime(year, monthIndex + 1, joinDay);
         
-        if (now.isBefore(assessmentDate)) {
-           // Not reached the assessment date yet for this cycle
+        if (now.isBefore(gracePeriodStart)) {
+           // Not reached the grace period date yet for this cycle
            continue; 
         }
 
-        // Deadline is 5th of that following month
-        final deadlineDate = DateTime(year, monthIndex + 1, 5, 23, 59, 59);
+        // Deadline is +4 days to give a 5-day inclusive grace period (e.g. 9 to 13)
+        final gracePeriodEnd = DateTime(year, monthIndex + 1, joinDay + 4, 23, 59, 59);
 
         double balanceAtAssessment = 0;
         
-        // If they joined after the assessment date started, they entirely missed the cycle
-        if (joinDate.isAfter(assessmentDate)) {
+        // If they joined in a month strictly after this cycle, they entirely missed it
+        if (joinDate.month > monthIndex) {
              balanceAtAssessment = member.targetAmount;
         } else {
-             // Calculate contributions before deadline
+             // Calculate contributions before gracePeriodEnd
              double historicContributions = 0;
-             if (joinDate.isBefore(deadlineDate) || joinDate.isAtSameMomentAs(deadlineDate)) {
+             if (joinDate.isBefore(gracePeriodEnd) || joinDate.isAtSameMomentAs(gracePeriodEnd)) {
                  historicContributions += originalDeposit;
              }
              
@@ -81,7 +83,7 @@ class MemberPenaltiesService {
                      final pDateStr = p['date'];
                      if (pDateStr != null) {
                          final pDate = DateTime.parse(pDateStr);
-                         if (pDate.isBefore(deadlineDate) || pDate.isAtSameMomentAs(deadlineDate)) {
+                         if (pDate.isBefore(gracePeriodEnd) || pDate.isAtSameMomentAs(gracePeriodEnd)) {
                              historicContributions += (p['amount'] as num).toDouble();
                          }
                      }
@@ -92,19 +94,12 @@ class MemberPenaltiesService {
 
         if (balanceAtAssessment <= 0) continue; // Fully paid by deadline, no penalty
 
-        // Calculate penalty rate based on current date
-        bool isGracePeriod = now.year == deadlineDate.year &&
-                             now.month == deadlineDate.month &&
-                             now.day >= 1 && now.day <= 5;
-
         double penaltyRate = 0;
 
-        if (isGracePeriod) {
+        if (now.isBefore(gracePeriodEnd) || now.isAtSameMomentAs(gracePeriodEnd)) {
            penaltyRate = 0.10;
-        } else if (now.isAfter(deadlineDate)) {
-           penaltyRate = 0.15;
         } else {
-           continue;
+           penaltyRate = 0.15;
         }
 
         final penaltyAmount = balanceAtAssessment * penaltyRate;
