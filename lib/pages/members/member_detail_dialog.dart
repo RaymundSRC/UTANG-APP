@@ -5,6 +5,7 @@ import 'edit_member_dialog.dart';
 import 'member_payment_form.dart';
 import 'payment_history_dialog.dart';
 import 'member_penalties_service.dart';
+import 'show_penalty_dialog.dart';
 
 class MemberDetailDialog extends StatefulWidget {
   final Member member;
@@ -156,10 +157,13 @@ class _MemberDetailDialogState extends State<MemberDetailDialog> {
       }
 
       // Dynamically calculate gross penalties
-      final pendingPenalties = await MemberPenaltiesService.calculatePendingPenalties(widget.member);
+      final pendingPenalties =
+          await MemberPenaltiesService.calculatePendingPenalties(widget.member);
       _pendingPenalties = pendingPenalties;
 
-      double grossPenalties = pendingPenalties.fold(0.0, (sum, item) => sum + item.penaltyAmount);
+      double grossPenalties = pendingPenalties
+          .where((p) => !p.isUpcoming)
+          .fold(0.0, (sum, item) => sum + item.penaltyAmount);
       double currentOwedPenalties = grossPenalties - totalPaidPenalties;
       if (currentOwedPenalties < 0) currentOwedPenalties = 0;
 
@@ -183,65 +187,10 @@ class _MemberDetailDialogState extends State<MemberDetailDialog> {
   }
 
   void _showPenaltyPreviewDialog() {
-    double grossPenalty = _pendingPenalties.fold(0.0, (sum, item) => sum + item.penaltyAmount);
-
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Penalty Details'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (_pendingPenalties.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  child: Text('No penalties currently due.', style: TextStyle(fontStyle: FontStyle.italic)),
-                )
-              else ...[
-                const Text('Gross generated penalties:'),
-                const SizedBox(height: 12),
-                Flexible(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: _pendingPenalties.length,
-                    itemBuilder: (context, index) {
-                      final p = _pendingPenalties[index];
-                      return ListTile(
-                        dense: true,
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(p.description),
-                        trailing: Text(
-                          '₱${p.penaltyAmount.toStringAsFixed(2)}',
-                          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const Divider(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Total Gross Penalty:', style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text(
-                      '₱${grossPenalty.toStringAsFixed(2)}',
-                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red, fontSize: 16),
-                    ),
-                  ],
-                ),
-              ],
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
+      builder: (context) => ShowPenaltyDialog(
+        pendingPenalties: _pendingPenalties,
       ),
     );
   }
