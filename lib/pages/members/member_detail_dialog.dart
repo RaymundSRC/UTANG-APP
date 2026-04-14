@@ -75,6 +75,8 @@ class _MemberDetailDialogState extends State<MemberDetailDialog> {
         'amount': paymentData['amount'],
         'payment_type': paymentData['payment_type'],
         'date': paymentData['date']?.toIso8601String(),
+        if (paymentData['selected_months'] != null)
+          'selected_months': paymentData['selected_months'],
       };
 
       await supabase.from('member_payments').insert(paymentRecord);
@@ -156,16 +158,14 @@ class _MemberDetailDialogState extends State<MemberDetailDialog> {
         }
       }
 
-      // Dynamically calculate gross penalties
+      // Dynamically calculate net penalties (MemberPenaltiesService already deducts totalPaidPenalties)
       final pendingPenalties =
           await MemberPenaltiesService.calculatePendingPenalties(widget.member);
       _pendingPenalties = pendingPenalties;
 
-      double grossPenalties = pendingPenalties
+      double currentOwedPenalties = pendingPenalties
           .where((p) => !p.isUpcoming)
           .fold(0.0, (sum, item) => sum + item.penaltyAmount);
-      double currentOwedPenalties = grossPenalties - totalPaidPenalties;
-      if (currentOwedPenalties < 0) currentOwedPenalties = 0;
 
       if (mounted) {
         setState(() {

@@ -45,17 +45,19 @@ class MemberPenaltiesService {
     final List<Map<String, dynamic>> payments =
         List<Map<String, dynamic>>.from(paymentsRes);
 
-    // 2. Calculate original deposit at join date
     double totalContributionsFromPayments = 0;
+    double totalPaidPenalties = 0;
     for (var p in payments) {
       if (p['payment_type'] == 'contribution') {
         totalContributionsFromPayments += (p['amount'] as num).toDouble();
+      } else if (p['payment_type'] == 'penalty') {
+        totalPaidPenalties += (p['amount'] as num).toDouble();
       }
     }
 
     final originalDeposit =
         member.initialAmount - totalContributionsFromPayments;
-        
+
     final currentBalance = member.targetAmount - member.initialAmount;
 
     // 3. Get already paid penalties (we won't skip months, we just calculate gross)
@@ -73,24 +75,25 @@ class MemberPenaltiesService {
 
       // Grace period starts on the joinDay of the following month
       final gracePeriodStart = DateTime(year, monthIndex + 1, joinDay);
-      final gracePeriodEnd = DateTime(year, monthIndex + 1, joinDay + 4, 23, 59, 59);
+      final gracePeriodEnd =
+          DateTime(year, monthIndex + 1, joinDay + 4, 23, 59, 59);
 
       if (now.isBefore(gracePeriodStart)) {
         // UPCOMING CYCLE
         // We only want the *next* upcoming cycle
         if (currentBalance > 0) {
-            final penaltyAmount = currentBalance * 0.10;
-            pending.add(PenaltyItem(
-              monthIndex: monthIndex,
-              monthName: monthName,
-              penaltyAmount: penaltyAmount,
-              description: "$monthName (Expected) - 10% of ₱${currentBalance.toStringAsFixed(2)}",
-              isUpcoming: true,
-            ));
+          final penaltyAmount = currentBalance * 0.10;
+          pending.add(PenaltyItem(
+            monthIndex: monthIndex,
+            monthName: monthName,
+            penaltyAmount: penaltyAmount,
+            description:
+                "$monthName (Expected) - 10% of ₱${currentBalance.toStringAsFixed(2)}",
+            isUpcoming: true,
+          ));
         }
         break; // Stop after finding the very next cycle
       }
-
 
       double balanceAtAssessment = 0;
 
@@ -132,8 +135,19 @@ class MemberPenaltiesService {
         penaltyRate = 0.15;
       }
 
-      final penaltyAmount = balanceAtAssessment * penaltyRate;
+      double penaltyAmount = balanceAtAssessment * penaltyRate;
       final pctStr = (penaltyRate * 100).toInt();
+
+      // Deduct previously paid penalties for this cycle
+      if (totalPaidPenalties > 0) {
+        if (totalPaidPenalties >= penaltyAmount) {
+          totalPaidPenalties -= penaltyAmount;
+          continue; // Fully paid penalty for this month
+        } else {
+          penaltyAmount -= totalPaidPenalties;
+          totalPaidPenalties = 0;
+        }
+      }
 
       pending.add(PenaltyItem(
         monthIndex: monthIndex,

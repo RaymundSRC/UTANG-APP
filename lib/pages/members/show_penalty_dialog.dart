@@ -13,9 +13,11 @@ class ShowPenaltyDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     // Separate due and upcoming penalties
     final duePenalties = pendingPenalties.where((p) => !p.isUpcoming).toList();
-    final upcomingPenalties = pendingPenalties.where((p) => p.isUpcoming).toList();
+    final upcomingPenalties =
+        pendingPenalties.where((p) => p.isUpcoming).toList();
 
-    double grossPenalty = duePenalties.fold(0.0, (sum, item) => sum + item.penaltyAmount);
+    double grossPenalty =
+        duePenalties.fold(0.0, (sum, item) => sum + item.penaltyAmount);
 
     return AlertDialog(
       title: const Text('Penalty Details'),
@@ -103,7 +105,8 @@ class ShowPenaltyDialog extends StatelessWidget {
                       const SizedBox(height: 8),
                       Text(
                         'This penalty will apply if the remaining balance is not paid before the next grace period ends:',
-                        style: TextStyle(fontSize: 12, color: Colors.blue.shade800),
+                        style: TextStyle(
+                            fontSize: 12, color: Colors.blue.shade800),
                       ),
                       const SizedBox(height: 8),
                       ...upcomingPenalties.map((p) => Padding(
@@ -114,7 +117,8 @@ class ShowPenaltyDialog extends StatelessWidget {
                                 Expanded(
                                   child: Text(
                                     p.description,
-                                    style: TextStyle(color: Colors.blue.shade900),
+                                    style:
+                                        TextStyle(color: Colors.blue.shade900),
                                   ),
                                 ),
                                 Text(

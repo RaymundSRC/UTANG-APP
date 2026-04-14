@@ -168,7 +168,9 @@ class _PaymentHistoryDialogState extends State<PaymentHistoryDialog> {
                                 ),
                               ),
                               subtitle: Text(
-                                '${date.day}/${date.month}/${date.year}',
+                                paymentType == 'penalty' && payment['selected_months'] != null
+                                    ? '${date.day}/${date.month}/${date.year}\nPaid for: ${payment['selected_months']}'
+                                    : '${date.day}/${date.month}/${date.year}',
                                 style: TextStyle(
                                   color: Colors.grey.shade600,
                                   fontSize: 12,

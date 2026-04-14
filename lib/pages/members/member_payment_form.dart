@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'members_profile.dart';
+import 'member_penalties_service.dart';
+import 'penalty_month_selector.dart';
 
 class MemberPaymentForm extends StatefulWidget {
   final Member member;
@@ -20,6 +22,28 @@ class _MemberPaymentFormState extends State<MemberPaymentForm> {
   final amountController = TextEditingController();
   String selectedPaymentType = 'contribution';
   DateTime? selectedDate;
+  
+  List<PenaltyItem> _pendingPenalties = [];
+  bool _isLoadingPenalties = false;
+  String _selectedMonthsString = '';
+  double _lastSelectedPenaltyAmount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPenalties();
+  }
+
+  Future<void> _fetchPenalties() async {
+    setState(() => _isLoadingPenalties = true);
+    final penalties = await MemberPenaltiesService.calculatePendingPenalties(widget.member);
+    if (mounted) {
+      setState(() {
+        _pendingPenalties = penalties;
+        _isLoadingPenalties = false;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -146,6 +170,24 @@ class _MemberPaymentFormState extends State<MemberPaymentForm> {
               if (selectedPaymentType == 'contribution')
                 const SizedBox(height: 16),
 
+              if (selectedPaymentType == 'penalty')
+                _isLoadingPenalties 
+                    ? const Center(child: Padding(padding: EdgeInsets.all(16.0), child: CircularProgressIndicator()))
+                    : PenaltyMonthSelector(
+                        pendingPenalties: _pendingPenalties,
+                        onSelectionChanged: (selectedItems, totalAmount) {
+                          setState(() {
+                            // Automatically prefix amount if they haven't manually tweaked it (optional)
+                            // Here we just overwrite to help them, but they can still override it
+                            _selectedMonthsString = selectedItems.map((p) => p.monthName).join(', ');
+                            amountController.text = totalAmount > 0 ? totalAmount.toStringAsFixed(2) : '';
+                            _lastSelectedPenaltyAmount = totalAmount;
+                          });
+                        },
+                      ),
+              if (selectedPaymentType == 'penalty')
+                const SizedBox(height: 16),
+
               // Amount Field
               TextFormField(
                 controller: amountController,
@@ -237,11 +279,20 @@ class _MemberPaymentFormState extends State<MemberPaymentForm> {
                             );
                             return;
                           }
+                          if (selectedPaymentType == 'penalty' && _selectedMonthsString.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please select at least one penalty month to pay for.'),
+                              ),
+                            );
+                            return;
+                          }
                           Navigator.pop(context, {
                             'amount':
                                 double.tryParse(amountController.text) ?? 0,
                             'payment_type': selectedPaymentType,
                             'date': selectedDate,
+                            'selected_months': selectedPaymentType == 'penalty' ? _selectedMonthsString : null,
                           });
 
                           if (widget.onPaymentSaved != null) {
