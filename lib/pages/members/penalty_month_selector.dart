@@ -23,7 +23,8 @@ class _PenaltyMonthSelectorState extends State<PenaltyMonthSelector> {
   void initState() {
     super.initState();
     // Filter to only include actual due penalties (exclude expected/upcoming)
-    _duePenalties = widget.pendingPenalties.where((p) => !p.isUpcoming).toList();
+    _duePenalties =
+        widget.pendingPenalties.where((p) => !p.isUpcoming).toList();
   }
 
   void _toggleSelection(int index) {
@@ -38,13 +39,15 @@ class _PenaltyMonthSelectorState extends State<PenaltyMonthSelector> {
         }
       }
     });
-    
+
     _notifyParent();
   }
 
   void _notifyParent() {
-    final selectedItems = _selectedIndices.map((i) => _duePenalties[i]).toList();
-    final totalAmount = selectedItems.fold(0.0, (sum, item) => sum + item.penaltyAmount);
+    final selectedItems =
+        _selectedIndices.map((i) => _duePenalties[i]).toList();
+    final totalAmount =
+        selectedItems.fold(0.0, (sum, item) => sum + item.penaltyAmount);
     widget.onSelectionChanged(selectedItems, totalAmount);
   }
 
@@ -82,7 +85,8 @@ class _PenaltyMonthSelectorState extends State<PenaltyMonthSelector> {
       children: [
         Row(
           children: [
-            Icon(Icons.warning_amber_rounded, color: Colors.orange.shade700, size: 20),
+            Icon(Icons.warning_amber_rounded,
+                color: Colors.orange.shade700, size: 20),
             const SizedBox(width: 8),
             const Text(
               'Select Penalty Months',
@@ -104,15 +108,17 @@ class _PenaltyMonthSelectorState extends State<PenaltyMonthSelector> {
             children: List.generate(_duePenalties.length, (index) {
               final penalty = _duePenalties[index];
               final isSelected = _selectedIndices.contains(index);
-              
+
               return InkWell(
                 onTap: () => _toggleSelection(index),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: isSelected ? Colors.red.shade50 : Colors.transparent,
                     border: index < _duePenalties.length - 1
-                        ? Border(bottom: BorderSide(color: Colors.grey.shade200))
+                        ? Border(
+                            bottom: BorderSide(color: Colors.grey.shade200))
                         : null,
                   ),
                   child: Row(
@@ -134,8 +140,12 @@ class _PenaltyMonthSelectorState extends State<PenaltyMonthSelector> {
                             Text(
                               penalty.monthName,
                               style: TextStyle(
-                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                color: isSelected ? Colors.red.shade900 : Colors.black87,
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                                color: isSelected
+                                    ? Colors.red.shade900
+                                    : Colors.black87,
                               ),
                             ),
                             Text(
@@ -152,7 +162,9 @@ class _PenaltyMonthSelectorState extends State<PenaltyMonthSelector> {
                         '₱${penalty.penaltyAmount.toStringAsFixed(2)}',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: isSelected ? Colors.red.shade700 : Colors.grey.shade600,
+                          color: isSelected
+                              ? Colors.red.shade700
+                              : Colors.grey.shade600,
                         ),
                       ),
                     ],

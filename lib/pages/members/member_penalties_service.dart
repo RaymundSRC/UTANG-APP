@@ -7,6 +7,7 @@ class PenaltyItem {
   final double penaltyAmount;
   final String description;
   final bool isUpcoming;
+  final DateTime? dueDate;
 
   PenaltyItem({
     required this.monthIndex,
@@ -14,6 +15,7 @@ class PenaltyItem {
     required this.penaltyAmount,
     required this.description,
     this.isUpcoming = false,
+    this.dueDate,
   });
 }
 
@@ -90,6 +92,7 @@ class MemberPenaltiesService {
             description:
                 "$monthName (Expected) - 10% of ₱${currentBalance.toStringAsFixed(2)}",
             isUpcoming: true,
+            dueDate: gracePeriodStart,
           ));
         }
         break; // Stop after finding the very next cycle

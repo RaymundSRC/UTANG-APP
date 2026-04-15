@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'member_penalties_service.dart';
 
 class ShowPenaltyDialog extends StatelessWidget {
@@ -111,22 +112,40 @@ class ShowPenaltyDialog extends StatelessWidget {
                       const SizedBox(height: 8),
                       ...upcomingPenalties.map((p) => Padding(
                             padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(
-                                  child: Text(
-                                    p.description,
-                                    style:
-                                        TextStyle(color: Colors.blue.shade900),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        p.description,
+                                        style: TextStyle(
+                                            color: Colors.blue.shade900),
+                                      ),
+                                    ),
+                                    Text(
+                                      ' ${p.penaltyAmount.toStringAsFixed(2)}',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.blue.shade900),
+                                    ),
+                                  ],
+                                ),
+                                if (p.dueDate != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 2),
+                                    child: Text(
+                                      'Due: ${DateFormat('MMMM d, yyyy').format(p.dueDate!)}',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.blue.shade700,
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  '₱${p.penaltyAmount.toStringAsFixed(2)}',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.blue.shade900),
-                                ),
                               ],
                             ),
                           )),

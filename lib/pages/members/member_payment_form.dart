@@ -22,7 +22,7 @@ class _MemberPaymentFormState extends State<MemberPaymentForm> {
   final amountController = TextEditingController();
   String selectedPaymentType = 'contribution';
   DateTime? selectedDate;
-  
+
   List<PenaltyItem> _pendingPenalties = [];
   bool _isLoadingPenalties = false;
   String _selectedMonthsString = '';
@@ -36,7 +36,8 @@ class _MemberPaymentFormState extends State<MemberPaymentForm> {
 
   Future<void> _fetchPenalties() async {
     setState(() => _isLoadingPenalties = true);
-    final penalties = await MemberPenaltiesService.calculatePendingPenalties(widget.member);
+    final penalties =
+        await MemberPenaltiesService.calculatePendingPenalties(widget.member);
     if (mounted) {
       setState(() {
         _pendingPenalties = penalties;
@@ -171,22 +172,28 @@ class _MemberPaymentFormState extends State<MemberPaymentForm> {
                 const SizedBox(height: 16),
 
               if (selectedPaymentType == 'penalty')
-                _isLoadingPenalties 
-                    ? const Center(child: Padding(padding: EdgeInsets.all(16.0), child: CircularProgressIndicator()))
+                _isLoadingPenalties
+                    ? const Center(
+                        child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: CircularProgressIndicator()))
                     : PenaltyMonthSelector(
                         pendingPenalties: _pendingPenalties,
                         onSelectionChanged: (selectedItems, totalAmount) {
                           setState(() {
                             // Automatically prefix amount if they haven't manually tweaked it (optional)
                             // Here we just overwrite to help them, but they can still override it
-                            _selectedMonthsString = selectedItems.map((p) => p.monthName).join(', ');
-                            amountController.text = totalAmount > 0 ? totalAmount.toStringAsFixed(2) : '';
+                            _selectedMonthsString = selectedItems
+                                .map((p) => p.monthName)
+                                .join(', ');
+                            amountController.text = totalAmount > 0
+                                ? totalAmount.toStringAsFixed(2)
+                                : '';
                             _lastSelectedPenaltyAmount = totalAmount;
                           });
                         },
                       ),
-              if (selectedPaymentType == 'penalty')
-                const SizedBox(height: 16),
+              if (selectedPaymentType == 'penalty') const SizedBox(height: 16),
 
               // Amount Field
               TextFormField(
@@ -279,10 +286,12 @@ class _MemberPaymentFormState extends State<MemberPaymentForm> {
                             );
                             return;
                           }
-                          if (selectedPaymentType == 'penalty' && _selectedMonthsString.isEmpty) {
+                          if (selectedPaymentType == 'penalty' &&
+                              _selectedMonthsString.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Please select at least one penalty month to pay for.'),
+                                content: Text(
+                                    'Please select at least one penalty month to pay for.'),
                               ),
                             );
                             return;
@@ -292,7 +301,9 @@ class _MemberPaymentFormState extends State<MemberPaymentForm> {
                                 double.tryParse(amountController.text) ?? 0,
                             'payment_type': selectedPaymentType,
                             'date': selectedDate,
-                            'selected_months': selectedPaymentType == 'penalty' ? _selectedMonthsString : null,
+                            'selected_months': selectedPaymentType == 'penalty'
+                                ? _selectedMonthsString
+                                : null,
                           });
 
                           if (widget.onPaymentSaved != null) {
