@@ -73,10 +73,10 @@ class MemberPenaltiesService {
 
       final joinDay = joinDate.day;
 
-      // Grace period starts on the joinDay of the following month
-      final gracePeriodStart = DateTime(year, monthIndex + 1, joinDay);
+      // Grace period starts on the joinDay of the current cycle month
+      final gracePeriodStart = DateTime(year, monthIndex, joinDay);
       final gracePeriodEnd =
-          DateTime(year, monthIndex + 1, joinDay + 4, 23, 59, 59);
+          DateTime(year, monthIndex, joinDay + 4, 23, 59, 59);
 
       if (now.isBefore(gracePeriodStart)) {
         // UPCOMING CYCLE
