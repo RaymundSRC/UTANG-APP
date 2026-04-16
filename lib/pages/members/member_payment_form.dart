@@ -62,10 +62,11 @@ class _MemberPaymentFormState extends State<MemberPaymentForm> {
         padding: const EdgeInsets.all(24),
         child: Form(
           key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               // Header
               Row(
                 children: [
@@ -325,6 +326,7 @@ class _MemberPaymentFormState extends State<MemberPaymentForm> {
                 ],
               ),
             ],
+            ),
           ),
         ),
       ),
