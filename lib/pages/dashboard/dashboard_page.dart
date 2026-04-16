@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../services/dashboard_service.dart';
+import '../../services/core/dashboard_service.dart';
 import 'dashboard_cards.dart';
 import 'dashboard_recent_loans.dart';
 import 'dashboard_quick_actions.dart';
@@ -27,7 +27,7 @@ class _DashboardPageState extends State<DashboardPage> {
     });
 
     try {
-      final data = await DashboardService().getDashboardData();
+      final data = await DashboardService().getDashboardDataWithRealFund();
       setState(() {
         _dashboardData = data;
         _isLoading = false;
@@ -43,6 +43,16 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Dashboard'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadDashboardData,
+            tooltip: 'Refresh Dashboard',
+          ),
+        ],
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
@@ -52,13 +62,6 @@ class _DashboardPageState extends State<DashboardPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Dashboard Overview',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
                     const SizedBox(height: 20),
                     DashboardCards.buildMetricCards(_dashboardData),
                     const SizedBox(height: 20),
