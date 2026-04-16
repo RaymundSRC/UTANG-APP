@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/dashboard_service.dart';
 import 'dashboard_cards.dart';
 import 'dashboard_recent_loans.dart';
 import 'dashboard_quick_actions.dart';
@@ -17,6 +18,26 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
+    _loadDashboardData();
+  }
+
+  Future<void> _loadDashboardData() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final data = await DashboardService().getDashboardData();
+      setState(() {
+        _dashboardData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      // Handle error as needed
+    }
   }
 
   @override
@@ -25,7 +46,7 @@ class _DashboardPageState extends State<DashboardPage> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
-              onRefresh: () async {},
+              onRefresh: _loadDashboardData,
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
