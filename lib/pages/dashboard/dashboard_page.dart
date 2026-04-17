@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../services/dashboard_service.dart';
+import '../../services/dashboard_services/dashboard_service.dart';
 import 'dashboard_cards.dart';
 import 'dashboard_recent_loans.dart';
 import 'dashboard_quick_actions.dart';
