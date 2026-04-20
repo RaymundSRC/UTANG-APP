@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'pages/dashboard/dashboard_page.dart';
 import 'pages/members/members_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-// import 'pages/loans/loans_page.dart';
+import 'pages/loans/loans_page.dart';
 // import 'pages/transactions/transactions_page.dart';
 // import 'pages/reports/reports_page.dart';
 
@@ -61,7 +61,7 @@ class _MainPageState extends State<MainPage> {
   final List<Widget> _pages = [
     const DashboardPage(),
     const MembersPage(),
-    // const LoansPage(),
+    const LoansPage(),
     // const TransactionsPage(),
     // const ReportsPage(),
   ];
