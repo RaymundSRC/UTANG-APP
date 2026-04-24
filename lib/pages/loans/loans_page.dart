@@ -3,6 +3,7 @@ import 'add_loan_button.dart';
 import 'add_loan_dialog.dart';
 import 'loan_model.dart';
 import '../../services/core/loan_service.dart';
+import '../../services/core/dashboard_service.dart';
 
 class LoansPage extends StatefulWidget {
   const LoansPage({super.key});
@@ -14,7 +15,9 @@ class LoansPage extends StatefulWidget {
 class _LoansPageState extends State<LoansPage> {
   List<Loan> _loans = [];
   bool _isLoading = true;
+  double _availableFund = 0.0;
   final LoanService _loanService = LoanService();
+  final DashboardService _dashboardService = DashboardService();
 
   @override
   void initState() {
@@ -31,8 +34,11 @@ class _LoansPageState extends State<LoansPage> {
 
     try {
       final loans = await _loanService.fetchLoans();
+      final totalFund = await _dashboardService.calculateTotalFundFromMembers();
+      final totalActiveLoans = await _loanService.getTotalActiveLoansAmount();
       setState(() {
         _loans = loans;
+        _availableFund = totalFund - totalActiveLoans;
         _isLoading = false;
       });
     } catch (e) {
@@ -109,7 +115,7 @@ class _LoansPageState extends State<LoansPage> {
   void _showAddLoanDialog() async {
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
-      builder: (context) => const AddLoanDialog(),
+      builder: (context) => AddLoanDialog(availableFund: _availableFund),
     );
 
     if (result != null) {

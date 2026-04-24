@@ -45,4 +45,23 @@ class LoanService {
       rethrow;
     }
   }
+
+  /// Calculate the total requested amount of all active loans.
+  Future<double> getTotalActiveLoansAmount() async {
+    try {
+      final response = await _supabase
+          .from('loans')
+          .select('requested_amount')
+          .eq('status', 'active');
+
+      double total = 0.0;
+      for (var loan in response) {
+        total += (loan['requested_amount'] as num?)?.toDouble() ?? 0.0;
+      }
+      return total;
+    } catch (e) {
+      print('Error calculating total active loans: $e');
+      rethrow;
+    }
+  }
 }
